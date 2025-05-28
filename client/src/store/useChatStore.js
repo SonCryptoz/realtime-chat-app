@@ -55,8 +55,8 @@ export const useChatStore = create((set, get) => ({
         
         try {
             const url = beforeMessageId
-                ? `/messages/${userId}?beforeMessageId=${beforeMessageId}&limit=${limit}`
-                : `/messages/${userId}?limit=${limit}`;
+                ? `/messages/conversation/${userId}?beforeMessageId=${beforeMessageId}&limit=${limit}`
+                : `/messages/conversation/${userId}?limit=${limit}`;
 
             const response = await axiosInstance.get(url);
 

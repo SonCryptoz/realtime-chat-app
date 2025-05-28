@@ -15,6 +15,6 @@ router.get("/users", protectRoute, getUsersForSidebar);
 router.get("/unread-messages", protectRoute, getUnreadMessages);
 router.patch("/mark-read/:id", protectRoute, markMessagesAsRead);
 router.post("/send/:id", protectRoute, sendMessage);
-router.get("/:id", protectRoute, getMessages);
+router.get("/conversation/:id", protectRoute, getMessages);
 
 export default router;
