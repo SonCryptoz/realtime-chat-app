@@ -5,7 +5,8 @@ import { io } from "socket.io-client";
 import { axiosInstance } from "../lib/axios.js";
 import { useChatStore } from "./useChatStore.js";
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
+const BASE_URL =
+    import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 
 export const useAuthStore = create((set, get) => ({
     authUser: null,
@@ -22,7 +23,10 @@ export const useAuthStore = create((set, get) => ({
             const response = await axiosInstance.get("/auth/check");
             set({ authUser: response.data });
             if (response.data) {
-                get().connectSocket(); // Kết nối socket nếu đã xác thực
+                // Đợi 1 tick để đảm bảo authUser đã được cập nhật
+                setTimeout(() => {
+                    get().connectSocket();
+                }, 0);
             } else {
                 set({ authUser: null });
             }
@@ -88,7 +92,10 @@ export const useAuthStore = create((set, get) => ({
                 toast.success("Logged in successfully!", {
                     id: "login-success",
                 });
-                get().connectSocket(); // Kết nối socket sau khi đăng nhập thành công
+                // Kết nối socket sau khi đăng nhập thành công
+                setTimeout(() => {
+                    get().connectSocket();
+                }, 0);
                 return response.data; // Trả về dữ liệu người dùng đã đăng nhập
             } else {
                 toast.error("Login failed: Invalid response", {
@@ -120,7 +127,10 @@ export const useAuthStore = create((set, get) => ({
                 toast.success("Logged in with Google successfully!", {
                     id: "google-login-success",
                 });
-                get().connectSocket(); // Kết nối socket nếu thành công
+                // Kết nối socket sau khi đăng nhập thành công
+                setTimeout(() => {
+                    get().connectSocket();
+                }, 0);
                 return response.data;
             } else {
                 toast.error("Google login failed", {
@@ -237,6 +247,7 @@ export const useAuthStore = create((set, get) => ({
 
         socket.on("connect", () => {
             useChatStore.getState().subcribeToMessages();
+            useChatStore.getState().getUnreadMessages();
         });
 
         socket.on("getOnlineUsers", (userIds) => {
