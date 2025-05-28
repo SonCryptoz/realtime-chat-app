@@ -11,12 +11,14 @@ const io = new Server(server, {
     },
 });
 
-export function getReceiverSocketId(userId) {
-    return userSocketMap[userId];
-}
+// Dùng Set để hỗ trợ nhiều socketId cho 1 userId
+const userSocketMap = {}; // { userId: Set(socketIds) }
 
-// Được sử dụng để lưu trữ người dùng trực tuyến
-const userSocketMap = {}; // { userId: socketId}
+export function getReceiverSocketId(userId) {
+    const sockets = userSocketMap[userId];
+    // Trả về socket đầu tiên (hoặc bất kỳ)
+    return sockets ? Array.from(sockets)[0] : null;
+}
 
 io.on("connection", (socket) => {
     console.log("A user connected", socket.id);
@@ -24,17 +26,32 @@ io.on("connection", (socket) => {
     const userId = socket.handshake.query.userId;
 
     if (userId) {
-        userSocketMap[userId] = socket.id;
+        if (!userSocketMap[userId]) {
+            userSocketMap[userId] = new Set();
+        }
+        userSocketMap[userId].add(socket.id);
     }
 
-    //  Được sử dụng để gửi sự kiện đến tất cả các máy khách được kết nối
+    // Gửi lại danh sách người dùng online cho tất cả
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+    // Gửi init info riêng cho client vừa kết nối (nếu muốn)
+    socket.emit("init", {
+        onlineUsers: Object.keys(userSocketMap),
+    });
 
     socket.on("disconnect", () => {
         console.log("A user disconnected", socket.id);
 
-        delete userSocketMap[userId];
+        if (userId && userSocketMap[userId]) {
+            userSocketMap[userId].delete(socket.id);
 
+            if (userSocketMap[userId].size === 0) {
+                delete userSocketMap[userId];
+            }
+        }
+
+        // Cập nhật lại danh sách online
         io.emit("getOnlineUsers", Object.keys(userSocketMap));
     });
 });

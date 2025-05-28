@@ -199,6 +199,7 @@ export const useAuthStore = create((set, get) => ({
             set({ authUser: null });
             toast.success("Logged out successfully!");
             get().disconnectSocket(true); // Ngắt kết nối socket khi đăng xuất
+            useChatStore.getState().unsubcribeFromMessages();
         } catch (error) {
             toast.error(error.response?.data?.message || "Error logging out");
         }
@@ -248,6 +249,12 @@ export const useAuthStore = create((set, get) => ({
         socket.on("connect", () => {
             useChatStore.getState().subcribeToMessages();
             useChatStore.getState().getUnreadMessages();
+        });
+
+        socket.on("init", (data) => {
+            if (data.onlineUsers) {
+                set({ onlineUsers: data.onlineUsers });
+            }
         });
 
         socket.on("getOnlineUsers", (userIds) => {

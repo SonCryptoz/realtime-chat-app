@@ -4,13 +4,12 @@ import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios.js";
 import { useAuthStore } from "./useAuthStore.js";
 
-let isSubscribed = false;
-
 export const useChatStore = create((set, get) => ({
     messages: [],
     users: [],
     selectedUser: null,
     isUserLoading: false,
+    isSubscribed: false,
     isMessageLoading: false,
     isFetchingMoreMessages: false,
     hasMoreMessages: true,
@@ -120,6 +119,7 @@ export const useChatStore = create((set, get) => ({
 
     subcribeToMessages: () => {
         const socket = useAuthStore.getState().socket;
+        const { isSubscribed } = get();
 
         if (!socket || isSubscribed) return;
 
@@ -145,7 +145,7 @@ export const useChatStore = create((set, get) => ({
             }
         });
 
-        isSubscribed = true;
+        set({ isSubscribed: true });
     },
 
     unsubcribeFromMessages: () => {
@@ -153,7 +153,7 @@ export const useChatStore = create((set, get) => ({
         if (socket) {
             socket.off("newMessage");
         }
-        isSubscribed = false;
+        set({ isSubscribed: false });
     },
 
     getUnreadMessages: async () => {
