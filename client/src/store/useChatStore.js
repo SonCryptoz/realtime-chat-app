@@ -8,10 +8,13 @@ export const useChatStore = create((set, get) => ({
     messages: [],
     users: [],
     selectedUser: null,
+
     isUserLoading: false,
     isSubscribed: false,
     isMessageLoading: false,
     isFetchingMoreMessages: false,
+    isChatReady: false,
+
     hasMoreMessages: true,
     firstUnreadMessageId: null,
     unreadMessages: {},
@@ -51,7 +54,7 @@ export const useChatStore = create((set, get) => ({
         } else {
             set({ isFetchingMoreMessages: true });
         }
-        
+
         try {
             const url = beforeMessageId
                 ? `/messages/conversation/${userId}?beforeMessageId=${beforeMessageId}&limit=${limit}`
@@ -163,7 +166,24 @@ export const useChatStore = create((set, get) => ({
             res.data.forEach(({ userId, unreadCount }) => {
                 map[userId] = unreadCount;
             });
+
             set({ unreadMessages: map });
+
+            // Nếu đang mở đúng người có unread → tìm vị trí phân cách
+            const { selectedUser, messages } = get();
+            const selectedUserId = selectedUser?._id;
+            const unreadCount = map[selectedUserId];
+
+            if (
+                selectedUserId &&
+                unreadCount &&
+                messages.length >= unreadCount
+            ) {
+                const firstUnread = messages[messages.length - unreadCount];
+                if (firstUnread) {
+                    set({ firstUnreadMessageId: firstUnread._id });
+                }
+            }
         } catch (error) {
             toast.error(
                 error.response?.data?.message ||
@@ -195,10 +215,20 @@ export const useChatStore = create((set, get) => ({
             selectedUser: user,
             messages: [],
             hasMoreMessages: true,
+            firstUnreadMessageId: null,
         });
 
         // Không đánh dấu đã đọc ngay lập tức
-        await get().getMessages(user._id); // Lấy tin nhắn => khi render, vẫn còn firstUnreadMessageId
+        const messages = await get().getMessages(user._id); // Lấy tin nhắn => khi render, vẫn còn firstUnreadMessageId
+
+        // Sau khi đã có messages, xác định firstUnread
+        const unreadCount = get().unreadMessages?.[user._id] || 0;
+        if (unreadCount > 0 && messages.length >= unreadCount) {
+            const firstUnread = messages[messages.length - unreadCount];
+            if (firstUnread) {
+                set({ firstUnreadMessageId: firstUnread._id });
+            }
+        }
 
         // Delay mark-as-read 1 nhịp sau khi render
         setTimeout(() => {

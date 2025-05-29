@@ -218,7 +218,7 @@ export const useAuthStore = create((set, get) => ({
                 },
             );
         } finally {
-            set({ isUpdatingProfile: false }); 
+            set({ isUpdatingProfile: false });
         }
     },
 
@@ -236,9 +236,14 @@ export const useAuthStore = create((set, get) => ({
         });
         socket.connect();
 
-        socket.on("connect", () => {
-            useChatStore.getState().subcribeToMessages();
-            useChatStore.getState().getUnreadMessages();
+        socket.on("connect", async () => {
+            // Gọi các bước sau khi kết nối socket thành công
+            const chatStore = useChatStore.getState();
+
+            chatStore.subcribeToMessages(); // lắng nghe newMessage
+            await chatStore.getUnreadMessages(); // lấy unread
+
+            useChatStore.setState({ isChatReady: true }); // Đánh dấu đã sẵn sàng
         });
 
         socket.on("init", (data) => {

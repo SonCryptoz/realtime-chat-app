@@ -4,6 +4,7 @@ import { Loader } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 import { useAuthStore } from "./store/useAuthStore";
+import { useChatStore } from "./store/useChatStore";
 import { useThemeStore } from "./store/useThemeStore";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
@@ -17,6 +18,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const App = () => {
     const { authUser, checkAuth, isCheckingAuth, socket, connectSocket } = useAuthStore();
+    const { isChatReady } = useChatStore();
     const { theme } = useThemeStore();
 
     // Gọi checkAuth khi app load lần đầu
@@ -31,7 +33,7 @@ const App = () => {
         }
     }, [authUser, socket, connectSocket]);
 
-    if (isCheckingAuth && !authUser) {
+    if ((isCheckingAuth && !authUser) || (authUser && !isChatReady)) {
         return (
             <div
                 className="flex justify-center items-center h-screen"
