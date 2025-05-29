@@ -230,7 +230,7 @@ export const useAuthStore = create((set, get) => ({
                 },
             );
         } finally {
-            set({ isUpdatingProfile: false });
+            set({ isUpdatingProfile: false }); 
         }
     },
 
@@ -243,6 +243,8 @@ export const useAuthStore = create((set, get) => ({
             query: {
                 userId: authUser._id,
             },
+            transports: ["websocket"],
+            withCredentials: true,
         });
         socket.connect();
 
