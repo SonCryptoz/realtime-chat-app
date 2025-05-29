@@ -21,12 +21,8 @@ export const useAuthStore = create((set, get) => ({
     checkAuth: async () => {
         try {
             const response = await axiosInstance.get("/auth/check");
-            set({ authUser: response.data });
             if (response.data) {
-                // Đợi 1 tick để đảm bảo authUser đã được cập nhật
-                setTimeout(() => {
-                    get().connectSocket();
-                }, 0);
+                set({ authUser: response.data });
             } else {
                 set({ authUser: null });
             }
@@ -92,10 +88,6 @@ export const useAuthStore = create((set, get) => ({
                 toast.success("Logged in successfully!", {
                     id: "login-success",
                 });
-                // Kết nối socket sau khi đăng nhập thành công
-                setTimeout(() => {
-                    get().connectSocket();
-                }, 0);
                 return response.data; // Trả về dữ liệu người dùng đã đăng nhập
             } else {
                 toast.error("Login failed: Invalid response", {
@@ -127,10 +119,6 @@ export const useAuthStore = create((set, get) => ({
                 toast.success("Logged in with Google successfully!", {
                     id: "google-login-success",
                 });
-                // Kết nối socket sau khi đăng nhập thành công
-                setTimeout(() => {
-                    get().connectSocket();
-                }, 0);
                 return response.data;
             } else {
                 toast.error("Google login failed", {

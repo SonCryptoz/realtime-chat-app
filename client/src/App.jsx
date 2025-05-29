@@ -16,12 +16,20 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const App = () => {
-    const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+    const { authUser, checkAuth, isCheckingAuth, socket, connectSocket } = useAuthStore();
     const { theme } = useThemeStore();
 
+    // Gọi checkAuth khi app load lần đầu
     useEffect(() => {
         checkAuth();
     }, [checkAuth]);
+
+    // Gọi connectSocket đúng thời điểm khi authUser đã có
+    useEffect(() => {
+        if (authUser && !socket) {
+            connectSocket();
+        }
+    }, [authUser, socket, connectSocket]);
 
     if (isCheckingAuth && !authUser) {
         return (
