@@ -166,7 +166,24 @@ export const useChatStore = create((set, get) => ({
             res.data.forEach(({ userId, unreadCount }) => {
                 map[userId] = unreadCount;
             });
+
             set({ unreadMessages: map });
+            
+            // Nếu đang mở đúng người có unread → tìm vị trí phân cáchAdd commentMore actions
+            const { selectedUser, messages } = get();
+            const selectedUserId = selectedUser?._id;
+            const unreadCount = map[selectedUserId];
+
+            if (
+                selectedUserId &&
+                unreadCount &&
+                messages.length >= unreadCount
+            ) {
+                const firstUnread = messages[messages.length - unreadCount];
+                if (firstUnread) {
+                    set({ firstUnreadMessageId: firstUnread._id });
+                }
+            }
         } catch (error) {
             toast.error(
                 error.response?.data?.message ||
