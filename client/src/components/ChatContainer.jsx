@@ -5,7 +5,7 @@ import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import { useAuthStore } from "../store/useAuthStore";
-import { formatMessageTime } from "../lib/utils";
+import { formatMessageTime, formatMessageLink } from "../lib/utils.jsx";
 
 const ChatContainer = () => {
     const {
@@ -96,7 +96,7 @@ const ChatContainer = () => {
                         (
                             message.senderId?._id || message.senderId
                         )?.toString() === authUser._id;
-                        
+
                     const isFirstUnread =
                         message._id?.toString() ===
                         firstUnreadMessageId?.toString();
@@ -149,7 +149,7 @@ const ChatContainer = () => {
                                     )}
                                     {message.text && (
                                         <p className="text-sm">
-                                            {message.text}
+                                            {formatMessageLink(message.text)}
                                         </p>
                                     )}
                                     <p
