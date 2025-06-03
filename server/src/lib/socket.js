@@ -42,6 +42,21 @@ io.on("connection", (socket) => {
         onlineUsers: Object.keys(userSocketMap),
     });
 
+    // Lắng nghe sự kiện "typing" từ client
+    socket.on("typing", (receiverId) => {
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("typing", userId); // userId là người đang gõ
+        }
+    });
+
+    socket.on("stopTyping", (receiverId) => {
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("stopTyping", userId); // userId là người vừa dừng
+        }
+    });
+
     socket.on("disconnect", () => {
         console.log("A user disconnected", socket.id);
 

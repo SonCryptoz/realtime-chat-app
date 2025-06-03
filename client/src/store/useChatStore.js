@@ -19,6 +19,7 @@ export const useChatStore = create((set, get) => ({
     hasMoreMessages: true,
     firstUnreadMessageId: null,
     unreadMessages: {},
+    typingStatus: {},
 
     getUsers: async () => {
         set({ isUserLoading: true });
@@ -171,6 +172,16 @@ export const useChatStore = create((set, get) => ({
             socket.off("newMessage");
         }
         set({ isSubscribed: false });
+    },
+
+    setTypingStatus: (userId, isTyping) => {
+        const { typingStatus } = get();
+        set({
+            typingStatus: {
+                ...typingStatus,
+                [userId]: isTyping,
+            },
+        });
     },
 
     getUnreadMessages: async () => {

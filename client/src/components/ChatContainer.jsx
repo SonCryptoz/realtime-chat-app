@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 
 import { useChatStore } from "../store/useChatStore";
 import ChatHeader from "./ChatHeader";
@@ -16,46 +17,40 @@ const ChatContainer = () => {
         hasMoreMessages,
         selectedUser,
         firstUnreadMessageId,
+        typingStatus,
     } = useChatStore();
 
     const { authUser } = useAuthStore();
     const messageEndRef = useRef(null);
     const chatBoxRef = useRef(null);
     const topMessageRef = useRef(null);
+    const isAtBottomRef = useRef(true);
     const prevScrollHeightRef = useRef(0);
 
-    // Load tin nhắn ban đầu
-    useEffect(() => {
-        if (!selectedUser) return;
-        getMessages(selectedUser._id);
-    }, [selectedUser, getMessages]);
-
-    // Scroll xuống cuối khi có tin nhắn mới (chỉ lần đầu)
-    useEffect(() => {
-        if (messageEndRef.current && messages.length > 0) {
-            messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages]);
-
     // Xử lý scroll để load thêm khi lên đầu
-    const handleScroll = useCallback(async () => {
+    const handleScroll = useCallback(() => {
         const box = chatBoxRef.current;
         if (!box || isFetchingMoreMessages || !hasMoreMessages) return;
 
-        if (box.scrollTop === 0 && messages.length > 0) {
+        const isNearTop = box.scrollTop === 0;
+        const isNearBottom =
+            box.scrollHeight - box.scrollTop - box.clientHeight < 100;
+
+        isAtBottomRef.current = isNearBottom;
+
+        if (isNearTop && messages.length > 0) {
             const oldestMessageId = messages[0]._id;
             prevScrollHeightRef.current = box.scrollHeight;
 
-            await getMessages(selectedUser._id, {
+            getMessages(selectedUser._id, {
                 beforeMessageId: oldestMessageId,
-            });
-
-            // Sau khi load xong, giữ nguyên vị trí scroll
-            requestAnimationFrame(() => {
-                const newScrollHeight = box.scrollHeight;
-                const scrollDiff =
-                    newScrollHeight - prevScrollHeightRef.current;
-                box.scrollTop = scrollDiff;
+            }).then(() => {
+                requestAnimationFrame(() => {
+                    const newScrollHeight = box.scrollHeight;
+                    const scrollDiff =
+                        newScrollHeight - prevScrollHeightRef.current;
+                    box.scrollTop = scrollDiff;
+                });
             });
         }
     }, [
@@ -65,6 +60,21 @@ const ChatContainer = () => {
         isFetchingMoreMessages,
         hasMoreMessages,
     ]);
+
+    // Load tin nhắn ban đầu
+    useEffect(() => {
+        if (!selectedUser) return;
+        getMessages(selectedUser._id);
+    }, [selectedUser, getMessages]);
+
+    // Scroll xuống cuối khi có tin nhắn mới
+    useEffect(() => {
+        setTimeout(() => {
+            if (messageEndRef.current && isAtBottomRef.current) {
+                messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            }
+        }, 100); // Đợi DOM cập nhật
+    }, [messages, typingStatus]);
 
     if (isMessageLoading) {
         return (
@@ -176,6 +186,42 @@ const ChatContainer = () => {
                         </div>
                     );
                 })}
+                <AnimatePresence>
+                    {selectedUser && typingStatus[selectedUser._id] && (
+                        <Motion.div
+                            key="typing"
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 4 }}
+                            transition={{ duration: 0.3 }}
+                            className="flex items-end gap-2"
+                        >
+                            <img
+                                src={
+                                    selectedUser.profilePicture || "/avatar.png"
+                                }
+                                alt="Avatar"
+                                className="w-8 h-8 rounded-full"
+                            />
+                            <div className="rounded-xl p-3 shadow-sm bg-base-200 rounded-bl-none">
+                                <div className="flex space-x-1">
+                                    <span
+                                        className="dot w-1 h-1 bg-base-content/70 rounded-full animate-bounce"
+                                        style={{ animationDelay: "0s" }}
+                                    ></span>
+                                    <span
+                                        className="dot w-1 h-1 bg-base-content/70 rounded-full animate-bounce"
+                                        style={{ animationDelay: "0.2s" }}
+                                    ></span>
+                                    <span
+                                        className="dot w-1 h-1 bg-base-content/70 rounded-full animate-bounce"
+                                        style={{ animationDelay: "0.4s" }}
+                                    ></span>
+                                </div>
+                            </div>
+                        </Motion.div>
+                    )}
+                </AnimatePresence>
                 <div ref={messageEndRef} />
             </div>
 

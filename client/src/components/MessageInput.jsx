@@ -1,15 +1,23 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 const MessageInput = () => {
     const [text, setText] = useState("");
     const [imagePreview, setImagePreview] = useState(null);
+
     const [isSending, setIsSending] = useState(false);
+
     const fileInputRef = useRef(null);
+
     const { sendMessage } = useChatStore();
+
+    const { selectedUser } = useChatStore();
+    const { socket } = useAuthStore();
+    const typingTimeoutRef = useRef(null);
 
     const handlePaste = (e) => {
         const items = e.clipboardData?.items;
@@ -72,6 +80,7 @@ const MessageInput = () => {
         setIsSending(true);
         try {
             await sendMessage({ text: text.trim(), image: imagePreview });
+            socket.emit("stopTyping", selectedUser._id);
 
             // Reset input
             setText("");
@@ -83,6 +92,12 @@ const MessageInput = () => {
             setIsSending(false);
         }
     };
+
+    useEffect(() => {
+        return () => {
+            clearTimeout(typingTimeoutRef.current);
+        };
+    }, []);
 
     return (
         <div className="p-4 w-full">
@@ -118,7 +133,20 @@ const MessageInput = () => {
                         className="input input-bordered flex-1 text-sm h-10 min-w-0"
                         placeholder="Type a message..."
                         value={text}
-                        onChange={(e) => setText(e.target.value)}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setText(value);
+
+                            if (!socket || !selectedUser) return;
+
+                            socket.emit("typing", selectedUser._id);
+
+                            // Reset timeout mỗi lần gõ
+                            clearTimeout(typingTimeoutRef.current);
+                            typingTimeoutRef.current = setTimeout(() => {
+                                socket.emit("stopTyping", selectedUser._id);
+                            }, 2000); // Sau 2 giây không gõ sẽ gửi stopTyping
+                        }}
                         onPaste={handlePaste}
                     />
                     <input

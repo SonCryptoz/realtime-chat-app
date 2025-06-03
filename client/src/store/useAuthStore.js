@@ -256,6 +256,14 @@ export const useAuthStore = create((set, get) => ({
             set({ onlineUsers: userIds });
         });
 
+        socket.on("typing", (userId) => {
+            useChatStore.getState().setTypingStatus(userId, true);
+        });
+
+        socket.on("stopTyping", (userId) => {
+            useChatStore.getState().setTypingStatus(userId, false);
+        });
+
         set({ socket: socket });
     },
 
