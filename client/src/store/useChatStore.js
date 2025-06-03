@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 
 import { axiosInstance } from "../lib/axios.js";
 import { useAuthStore } from "./useAuthStore.js";
+import { playNotificationSound } from "../lib/utils.jsx";
 
 export const useChatStore = create((set, get) => ({
     messages: [],
@@ -128,6 +129,19 @@ export const useChatStore = create((set, get) => ({
 
         socket.on("newMessage", (newMessage) => {
             const { messages, unreadMessages, selectedUser } = get();
+            const authUser = useAuthStore.getState().authUser;
+
+            const isFromOtherUser = newMessage.senderId !== authUser._id;
+            const isNotCurrentChat =
+                !selectedUser || newMessage.senderId !== selectedUser._id;
+
+            // Kiểm tra nếu tab đang ẩn
+            const isTabHidden = document.visibilityState === "hidden";
+
+            // Phát tiếng nếu là tin từ người khác và không phải phòng đang mở hoặc tab đang ẩn
+            if (isFromOtherUser && (isNotCurrentChat || isTabHidden)) {
+                playNotificationSound();
+            }
 
             if (!selectedUser || newMessage.senderId !== selectedUser._id) {
                 const count = unreadMessages[newMessage.senderId] || 0;
@@ -168,7 +182,7 @@ export const useChatStore = create((set, get) => ({
             });
 
             set({ unreadMessages: map });
-            
+
             // Nếu đang mở đúng người có unread → tìm vị trí phân cáchAdd commentMore actions
             const { selectedUser, messages } = get();
             const selectedUserId = selectedUser?._id;

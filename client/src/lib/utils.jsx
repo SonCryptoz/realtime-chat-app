@@ -56,3 +56,17 @@ export const formatMessageLink = (text) => {
 
     return parts;
 };
+
+// Phát tiếng thông báo khi có tin nhắn mới
+export const playNotificationSound = () => {
+    try {
+        const audio = new Audio("/sounds/notification.wav");
+        audio.volume = 1; // Có thể chỉnh nhỏ hơn nếu quá to, ví dụ 0.5
+        audio.play().catch((error) => {
+            // Trình duyệt chặn do người dùng chưa tương tác lần đầu
+            console.warn("Playback blocked by browser:", error);
+        });
+    } catch (err) {
+        console.error("Error to play sound:", err);
+    }
+};
