@@ -1,12 +1,26 @@
-import { LogOut, MessageSquare, Settings, User } from "lucide-react";
+import { LogOut, MessageSquare, Settings, User, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
 import { useAuthStore } from "../store/useAuthStore";
+import { useThemeStore } from "../store/useThemeStore";
 
 const Navbar = () => {
+    const { theme } = useThemeStore();
+
     const { logout, authUser } = useAuthStore();
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+        try {
+            await logout();
+        } finally {
+            setIsLoggingOut(false);
+            setIsConfirmOpen(false);
+        }
+    };
 
     return (
         <>
@@ -77,20 +91,28 @@ const Navbar = () => {
                             <button
                                 className="btn"
                                 onClick={() => setIsConfirmOpen(false)}
+                                disabled={isLoggingOut}
                             >
                                 Cancel
                             </button>
                             <button
                                 className="btn btn-primary"
-                                onClick={() => {
-                                    logout();
-                                    setIsConfirmOpen(false);
-                                }}
+                                onClick={handleLogout}
+                                disabled={isLoggingOut}
                             >
                                 Ok
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {isLoggingOut && (
+                <div
+                    className="fixed inset-0 z-[100] flex justify-center items-center bg-base-100/80 backdrop-blur"
+                    data-theme={theme}
+                >
+                    <Loader className="size-10 animate-spin" />
                 </div>
             )}
         </>
