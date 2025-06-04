@@ -66,7 +66,7 @@ export const playNotificationSound = () => {
         if (!canPlay) return;
 
         // Luôn tạo mới Audio object để tránh lỗi không phát lại
-        const audio = new Audio("/sounds/notification.wav");
+        const audio = new Audio("/sounds/notification.mp3");
         audio.volume = 1;
         audio.load();
         audio.currentTime = 0;
