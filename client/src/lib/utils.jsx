@@ -61,13 +61,20 @@ export const formatMessageLink = (text) => {
 // Phát tiếng thông báo khi có tin nhắn mới
 export const playNotificationSound = () => {
     try {
+        // Kiểm tra xem user đã tương tác với trang chưa (nếu bạn có flag)
+        const canPlay = localStorage.getItem("canPlaySound") === "true";
+        if (!canPlay) return;
+
+        // Luôn tạo mới Audio object để tránh lỗi không phát lại
         const audio = new Audio("/sounds/notification.wav");
-        audio.volume = 1; // Có thể chỉnh nhỏ hơn nếu quá to, ví dụ 0.5
+        audio.volume = 1;
+        audio.load();
+        audio.currentTime = 0;
+
         audio.play().catch((error) => {
-            // Trình duyệt chặn do người dùng chưa tương tác lần đầu
             console.warn("Playback blocked by browser:", error);
         });
     } catch (err) {
-        console.error("Error to play sound:", err);
+        console.error("Error playing notification sound:", err);
     }
 };

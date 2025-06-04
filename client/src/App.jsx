@@ -17,7 +17,8 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 const App = () => {
-    const { authUser, checkAuth, isCheckingAuth, socket, connectSocket } = useAuthStore();
+    const { authUser, checkAuth, isCheckingAuth, socket, connectSocket } =
+        useAuthStore();
     const { isChatReady } = useChatStore();
     const { theme } = useThemeStore();
 
@@ -32,6 +33,20 @@ const App = () => {
             connectSocket();
         }
     }, [authUser, socket, connectSocket]);
+
+    // Thêm sự kiện click để bật âm thanh thông báo
+    useEffect(() => {
+        const enableSound = () => {
+            localStorage.setItem("canPlaySound", "true");
+            document.removeEventListener("click", enableSound);
+        };
+
+        document.addEventListener("click", enableSound);
+
+        return () => {
+            document.removeEventListener("click", enableSound);
+        };
+    }, []);
 
     if ((isCheckingAuth && !authUser) || (authUser && !isChatReady)) {
         return (
