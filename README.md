@@ -1,4 +1,4 @@
-# 💬 Real-Time Chat App
+# Real-Time Chat App
 
 <div align="center">
 
@@ -11,239 +11,255 @@
 [![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=cloudinary&logoColor=white)](https://cloudinary.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**Ứng dụng Chat thời gian thực với hệ thống xác thực người dùng và cập nhật tức thì**
-<br />
-🌐 [Xem Demo](https://realtime-chat-app-sa7n.onrender.com/) - 🐞 [Báo Lỗi](https://github.com/SonCryptoz/realtime-chat-app/issues)
+**Ứng dụng chat thời gian thực được xây dựng với React và Node.js**
+
+[Demo](https://realtime-chat-app-sa7n.onrender.com/) · [Báo lỗi](https://github.com/SonCryptoz/realtime-chat-app/issues)
+
 </div>
 
-## 📖 Giới thiệu
+## Giới thiệu
 
-**Real-Time Chat App** là một ứng dụng web cho phép người dùng nhắn tin theo thời gian thực với trải nghiệm mượt mà và cập nhật tức thì. 
+**Real-Time Chat App** là ứng dụng web chat cho phép người dùng gửi và nhận tin nhắn theo thời gian thực.
 
-Ứng dụng sử dụng cơ chế **WebSocket - Socket.IO** để truyền tải dữ liệu real-time, kết hợp với **MongoDB, Cloudinary** để lưu trữ tin nhắn, hình ảnh và quản lý xác thực người dùng.
+Ứng dụng được xây dựng theo mô hình **client-server**, sử dụng **React** cho frontend và **Node.js + Express** cho backend. **Socket.IO** đảm nhiệm việc giao tiếp thời gian thực giữa client và server, trong khi **MongoDB** được sử dụng để lưu trữ thông tin người dùng và lịch sử tin nhắn.
 
-Hệ thống được xây dựng theo kiến trúc **Server - Client**, đảm bảo hiệu năng cao và khả năng mở rộng tốt.
+Ứng dụng cũng tích hợp **Google OAuth** cho xác thực người dùng và **Cloudinary** để lưu trữ hình ảnh được gửi trong cuộc trò chuyện.
 
----
+## Tính năng
 
-## ✨ Tính năng chính
+### Chat
 
-- 💬 **Nhắn tin thời gian thực (Real-time Messaging):** Gửi và nhận tin nhắn ngay lập tức giữa các người dùng thông qua Socket.IO.
-- 🔐 **Xác thực người dùng (Authentication):** Đăng ký và đăng nhập bằng Google Authorization, đảm bảo an toàn và tiện lợi.
-- 🟢 **Hiển thị trạng thái online/offline:** Cho biết người dùng đang hoạt động hay không theo thời gian thực.
-- ✍️ **Typing Indicator:** Hiển thị trạng thái “đang nhập…” khi người khác đang soạn tin nhắn.
-- 🕒 **Lưu lịch sử tin nhắn:** Tin nhắn được lưu trữ trong MongoDB, cho phép xem lại các cuộc trò chuyện cũ.
-- 🖼️ **Gửi ảnh với Cloudinary:** Hỗ trợ upload và gửi hình ảnh nhanh chóng thông qua Cloudinary.
-- 🎨 **Giao diện đa dạng:** Hỗ trợ nhiều theme (Retro, Dark, Cyberpunk, …) nhờ DaisyUI + Tailwind CSS.
----
+* Gửi và nhận tin nhắn theo thời gian thực.
+* Hiển thị trạng thái online/offline của người dùng.
+* Typing indicator khi người dùng đang nhập tin nhắn.
+* Lưu và hiển thị lịch sử cuộc trò chuyện.
+* Gửi hình ảnh trong tin nhắn thông qua Cloudinary.
+* Giao diện responsive và hỗ trợ nhiều theme.
 
-## 🧠 Kiến trúc hệ thống (Real-time Flow)
+### Authentication
+
+* Đăng ký và đăng nhập tài khoản.
+* Đăng nhập thông qua Google OAuth.
+* Xác thực request phía server bằng JWT.
+* Quản lý trạng thái người dùng và phiên đăng nhập.
+
+## Kiến trúc hệ thống
+
 ```mermaid
 graph TD
-    subgraph Client[Frontend - React App]
-        A[User] --> B[Login with Google]
+    subgraph Client["Frontend - React"]
+        A[User] --> B[Authentication]
         B --> C[Chat UI]
         C --> D[Send Message]
-        C --> T[Typing Indicator]
-        C --> I[Upload Image]
+        C --> E[Typing Indicator]
+        C --> F[Upload Image]
     end
 
-    subgraph Server[Backend - Node.js + Express]
-        E[Google Auth Verification]
-        F[Socket.IO Server]
-        G[Message Controller]
-        H[User Controller]
+    subgraph Server["Backend - Node.js + Express"]
+        G[Auth Controller]
+        H[Socket.IO Server]
+        I[Message Controller]
+        J[User Controller]
     end
 
-    subgraph Database[MongoDB]
-        J[Users Collection]
-        K[Messages Collection]
+    subgraph Database["MongoDB"]
+        K[Users]
+        L[Messages]
     end
 
-    subgraph Media[Cloudinary]
-        L[Image Storage]
+    subgraph Storage["Cloudinary"]
+        M[Image Storage]
     end
 
-    %% Auth Flow
-    B --> E
-    E --> H
-    H --> J
-
-    %% Messaging Flow
-    D --> F
-    F --> G
+    B --> G
     G --> K
-    F --> C
 
-    %% Typing Flow
-    T --> F
-    F --> C
-
-    %% Image Flow
+    D --> H
+    H --> I
     I --> L
-    L --> G
-    G --> K
+    H --> C
+
+    E --> H
+    H --> C
+
+    F --> M
+    M --> I
+    I --> L
 ```
----
-## 🛠 Công nghệ sử dụng
 
-### Client
-- React (Vite)
-- Zustand
-- Socket.IO (Client)
-- Axios
-- TailwindCSS + DaisyUI
+## Công nghệ
 
-### Server
-- Node.js
-- Express
-- MongoDB (Mongoose)
-- Socket.IO
-- JWT Authentication
-- Google OAuth
-- Cloudinary
----
+### Frontend
 
-## 🚀 Cài đặt
+* **React 19** – Xây dựng giao diện người dùng.
+* **Vite** – Development server và build tool.
+* **Zustand** – Quản lý global state.
+* **Socket.IO Client** – Kết nối real-time với server.
+* **Axios** – Gửi HTTP request đến backend.
+* **Tailwind CSS + DaisyUI** – Xây dựng giao diện và theme.
 
-### Clone Project
+### Backend
+
+* **Node.js** – Runtime cho backend.
+* **Express** – Xây dựng REST API.
+* **MongoDB + Mongoose** – Database và ODM.
+* **Socket.IO** – Real-time communication.
+* **JWT** – Xác thực request.
+* **Google OAuth** – Đăng nhập bằng tài khoản Google.
+* **Cloudinary** – Upload và lưu trữ hình ảnh.
+
+## Cấu trúc thư mục
+
+```text
+realtime-chat-app/
+│
+├── client/                         # React frontend
+│   ├── public/                     # Static assets
+│   └── src/
+│       ├── components/             # UI components
+│       ├── constants/              # Constants và socket events
+│       ├── lib/                    # API wrappers và helper functions
+│       ├── pages/                  # Login, Register, Chat...
+│       ├── store/                  # Zustand stores
+│       ├── App.jsx
+│       ├── main.jsx
+│       ├── App.css
+│       └── index.css
+│
+├── server/                         # Node.js + Express backend
+│   └── src/
+│       ├── controllers/            # Business logic
+│       ├── lib/                    # Database, Cloudinary và utilities
+│       ├── middleware/             # Authentication và error handling
+│       ├── models/                 # Mongoose models
+│       ├── routes/                 # REST API routes
+│       ├── seeds/                  # Sample data
+│       └── index.js                # Server entry point
+│
+├── README.md
+└── .gitignore
+```
+
+## Cài đặt
+
+### 1. Clone repository
 
 ```bash
 git clone https://github.com/SonCryptoz/realtime-chat-app.git
 cd realtime-chat-app
 ```
 
-### Local Setup
+### 2. Cài đặt dependencies
 
-Client
+Frontend:
+
 ```bash
 cd client
-npm i
+npm install
+```
+
+Backend:
+
+```bash
+cd ../server
+npm install
+```
+
+### 3. Cấu hình environment variables
+
+Tạo file `.env` trong thư mục `client`:
+
+```env
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+```
+
+Tạo file `.env` trong thư mục `server`:
+
+```env
+MONGODB_URI=your_mongodb_url
+CLIENT_URL=http://localhost:5173
+
+PORT=5001
+JWT_SECRET=your_secret_key
+
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+EMAIL_USER=your_email
+EMAIL_PASS=your_password
+
+NODE_ENV=development
+```
+
+Không commit các file `.env` hoặc secret credentials vào repository.
+
+### 4. Chạy development server
+
+Frontend:
+
+```bash
+cd client
 npm run dev
 ```
 
-Server
+Backend:
+
 ```bash
 cd server
-npm i
 npm run dev
 ```
 
-### Production Setup
+Frontend mặc định chạy tại:
 
-```bash
-npm run build
-npm start
-```
-
-### Tạo file môi trường .env
-
-Client
-```bash
-VITE_GOOGLE_CLIENT_ID = your_google_client_id
-```
-
-Server
-```bash
-MONGODB_URI = your_mongodb_url
-CLIENT_URL = your_app_url
-
-PORT = 5001
-JWT_SECRET = my_secret_key # Tạo secret key mạnh trên PRODUCTION
-
-CLOUDINARY_CLOUD_NAME = your_cloud_name
-CLOUDINARY_API_KEY = your_api_key
-CLOUDINARY_API_SECRET = your_api_secret
-
-GOOGLE_CLIENT_ID = your_id
-GOOGLE_CLIENT_SECRET = your_secret
-
-EMAIL_USER = your_email
-EMAIL_PASS = your_password
-
-NODE_ENV = development # Không cho lên production vì có auto set
-```
-
-### Truy cập
-
-```bash
+```text
 http://localhost:5173
 ```
----
 
-## 📁 Cấu trúc thư mục
+Backend chạy tại port được cấu hình trong `PORT`.
 
-```txt
-chat-app/
-│
-├── client/                          # React (Vite) Frontend
-│   ├── public/                      # Static files
-│   ├── src/
-│      ├── components/              # UI components (ChatBox, Message, Sidebar, …)
-│      ├── constants/               # Hằng số (API URLs, socket events, roles, …)
-│      ├── lib/                     # Helper functions, API wrappers
-│      ├── pages/                   # Pages (Login, Register, Chat, …)
-│      ├── store/                   # Global state management
-│      ├── App.jsx                  # Root component
-│      ├── main.jsx                 # App entry point
-│      ├── App.css
-│      └── index.css
-│   
-│
-├── server/                          # Express Backend
-│   ├── src/
-│      ├── controllers/             # Xử lý logic (auth, message, user, …)
-│      ├── lib/                     # DB connection, Cloudinary config, utils
-│      ├── middleware/              # Auth middleware, error handler
-│      ├── models/                  # Mongoose models (User, Message, …)
-│      ├── routes/                  # API routes
-│      ├── seeds/                   # Seed dữ liệu mẫu
-│      └── index.js                 # Entry point của server
-│   
-│   
-│
-├── README.md
-└── .gitignore
+### 5. Production build
+
+```bash
+cd client
+npm run build
 ```
----
 
-## 🎯 Mục tiêu học tập
+Sau khi build, có thể triển khai frontend và backend lên các nền tảng hosting phù hợp.
 
-- [x] **Real-time Communication:** Hiểu và triển khai cơ chế giao tiếp thời gian thực bằng Socket.IO.
-- [x] **Authentication & Authorization:** Tích hợp Google Authorization cho đăng nhập/đăng ký và quản lý phiên người dùng an toàn.
-- [x] **Fullstack JavaScript:** Xây dựng ứng dụng fullstack với React (frontend) và Express (backend).
-- [x] **Database Design:** Thiết kế schema MongoDB cho User và Message, tối ưu việc lưu trữ lịch sử chat.
-- [x] **State Management:** Quản lý trạng thái người dùng và socket connection ở phía client.
-- [x] **Media Handling:** Upload và quản lý hình ảnh trong chat bằng Cloudinary.
-- [x] **UI/UX Modern:** Xây dựng giao diện responsive, hỗ trợ nhiều theme với Tailwind CSS + DaisyUI.
----
+## Những gì đã học được
 
-## 🧭 Hướng phát triển
+Thông qua dự án này, tôi có cơ hội thực hành:
 
-💾 **Lưu lịch sử chat theo người dùng:** Mỗi user có lịch sử hội thoại riêng, được đồng bộ giữa nhiều thiết bị khác nhau.
+* Xây dựng ứng dụng fullstack với React, Node.js và Express.
+* Triển khai giao tiếp thời gian thực bằng Socket.IO.
+* Thiết kế API và xử lý request giữa frontend và backend.
+* Thiết kế schema MongoDB bằng Mongoose.
+* Xây dựng hệ thống authentication với JWT và Google OAuth.
+* Quản lý global state bằng Zustand.
+* Xử lý kết nối và trạng thái của Socket.IO ở phía client.
+* Upload và quản lý hình ảnh với Cloudinary.
+* Xây dựng giao diện responsive và hệ thống theme với Tailwind CSS và DaisyUI.
+* Tổ chức source code theo cấu trúc frontend/backend riêng biệt.
 
-🔐 **Nâng cấp hệ thống xác thực:** Hỗ trợ đăng nhập nhiều nền tảng OAuth (Google, GitHub, ...) và quản lý session bảo mật hơn.
+## Hướng phát triển
 
-👥 **Chat nhóm & quản lý phòng chat:** Cho phép tạo phòng chat, mời thành viên, phân quyền admin/moderator.
+Một số tính năng có thể được bổ sung trong tương lai:
 
-👀 **Trạng thái tin nhắn nâng cao:** Bổ sung các trạng thái: sent, delivered, seen và hiển thị số tin nhắn chưa đọc.
+* Đồng bộ lịch sử chat giữa nhiều thiết bị.
+* Hỗ trợ đăng nhập thêm các nền tảng OAuth như GitHub.
+* Chat nhóm và quản lý phòng chat.
+* Trạng thái tin nhắn `sent`, `delivered`, `seen`.
+* Hiển thị số lượng tin nhắn chưa đọc.
+* Hỗ trợ gửi file, video và voice message.
+* Tìm kiếm tin nhắn và cuộc trò chuyện.
+* Hỗ trợ đa ngôn ngữ.
+* Cải thiện hệ thống notification và quản lý trạng thái người dùng.
 
-📁 **Hỗ trợ gửi nhiều loại media:** Mở rộng gửi file, video, voice message bên cạnh hình ảnh (Cloudinary).
-
-🔍 **Tìm kiếm & lọc hội thoại:** Tìm kiếm tin nhắn theo nội dung, người gửi hoặc khoảng thời gian.
-
-🌍 **Hỗ trợ đa ngôn ngữ (i18n):** Cho phép người dùng sử dụng giao diện bằng nhiều ngôn ngữ khác nhau.
-
-🎨 **Cá nhân hóa trải nghiệm người dùng**  
-
-**Dựa trên:**
-- Theme ưa thích  
-- Danh sách bạn bè  
-- Hành vi tương tác  
-- Lịch sử trò chuyện  
----
-
-## 🙏 Lời cảm ơn
+## Lời cảm ơn
 
 Dự án này không thể hoàn thiện nếu thiếu sự hỗ trợ từ các công cụ và nền tảng sau:
 
