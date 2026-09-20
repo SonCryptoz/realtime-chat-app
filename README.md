@@ -13,7 +13,7 @@
 
 **Ứng dụng chat thời gian thực được xây dựng với React và Node.js**
 
-[Demo](https://realtime-chat-app-sa7n.onrender.com/) · [Báo lỗi](https://github.com/SonCryptoz/realtime-chat-app/issues)
+[Demo](https://realtime-chat-app-sage-xi.vercel.app) · [Báo lỗi](https://github.com/SonCryptoz/realtime-chat-app/issues)
 
 </div>
 
