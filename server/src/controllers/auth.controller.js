@@ -306,9 +306,8 @@ export const signinWithGoogle = async (req, res) => {
         if (!user) {
             let uploadedAvatarURL = null;
             try {
-                const uploadedAvatar = await cloudinary.uploader.upload(
-                    picture,
-                );
+                const uploadedAvatar =
+                    await cloudinary.uploader.upload(picture);
                 uploadedAvatarURL = uploadedAvatar.secure_url;
             } catch (err) {
                 console.error("Upload avatar to Cloudinary failed:", err);
@@ -469,11 +468,12 @@ export const resetPassword = async (req, res) => {
 };
 
 export const logout = (req, res) => {
+    const isProduction = process.env.NODE_ENV === "production";
     try {
         res.cookie("jwt", "", {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
             maxAge: 0,
         });
         res.status(200).json({ message: "Logged out successfully" });

@@ -5,10 +5,12 @@ export const generateToken = (userId, res) => {
         expiresIn: '7d', // Thời gian hết hạn của token
     });
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie('jwt', token, {
         httpOnly: true, // Ngăn chặn truy cập từ JavaScript
-        sameSite: 'strict', // Ngăn chặn CSRF
-        secure: process.env.NODE_ENV === 'production', // Chỉ gửi cookie qua HTTPS trong môi trường production
+        sameSite: isProduction ? "none" : "lax", // Ngăn chặn CSRF
+        secure: isProduction, // Chỉ gửi cookie qua HTTPS trong môi trường production
         maxAge: 7 * 24 * 60 * 60 * 1000, // Thời gian sống của cookie (7 ngày)
     });
 
