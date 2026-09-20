@@ -5,9 +5,9 @@ import { io } from "socket.io-client";
 import { axiosInstance } from "../lib/axios.js";
 import { useChatStore } from "./useChatStore.js";
 
-const BASE_URL =
-    import.meta.env.VITE_BACKEND_URL ||
-    (import.meta.env.MODE === "development" ? "http://localhost:5001" : "/");
+const BASE_URL = import.meta.env.VITE_BACKEND_URL
+    ? import.meta.env.VITE_BACKEND_URL.replace(/\/$/, "")
+    : (import.meta.env.MODE === "development" ? "http://localhost:5001" : "/");
 
 export const useAuthStore = create((set, get) => ({
     authUser: null,
