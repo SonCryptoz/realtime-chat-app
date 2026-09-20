@@ -2,7 +2,11 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 
 export const protectRoute = async (req, res, next) => {
-    const token = req.cookies.jwt;
+    let token = req.cookies.jwt;
+
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+        token = req.headers.authorization.split(" ")[1];
+    }
 
     // Kiểm tra xem token có tồn tại không
     if (!token) {

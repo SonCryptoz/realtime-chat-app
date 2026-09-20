@@ -29,6 +29,7 @@ export const useAuthStore = create((set, get) => ({
             }
         } catch (error) {
             console.error("Error checking auth:", error);
+            localStorage.removeItem("token");
             set({ authUser: null });
         } finally {
             set({ isCheckingAuth: false });
@@ -85,6 +86,9 @@ export const useAuthStore = create((set, get) => ({
         try {
             const response = await axiosInstance.post("/auth/signin", data);
             if (response.data && response.data._id) {
+                if (response.data.token) {
+                    localStorage.setItem("token", response.data.token);
+                }
                 set({ authUser: response.data });
                 toast.success("Logged in successfully!", {
                     id: "login-success",
@@ -116,6 +120,9 @@ export const useAuthStore = create((set, get) => ({
             );
 
             if (response.data && response.data._id) {
+                if (response.data.token) {
+                    localStorage.setItem("token", response.data.token);
+                }
                 set({ authUser: response.data });
                 toast.success("Logged in with Google successfully!", {
                     id: "google-login-success",
@@ -185,12 +192,14 @@ export const useAuthStore = create((set, get) => ({
     logout: async () => {
         try {
             await axiosInstance.post("/auth/logout");
+        } catch (error) {
+            console.error("Error logging out:", error);
+        } finally {
+            localStorage.removeItem("token");
             set({ authUser: null });
             toast.success("Logged out successfully!");
             get().disconnectSocket(true); // Ngắt kết nối socket khi đăng xuất
             useChatStore.getState().unsubcribeFromMessages();
-        } catch (error) {
-            toast.error(error.response?.data?.message || "Error logging out");
         }
     },
 

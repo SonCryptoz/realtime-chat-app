@@ -238,14 +238,15 @@ export const signin = async (req, res) => {
             });
         }
 
-        // Tạo JWT và gán vào cookie
-        generateToken(user._id, res);
+        // Tạo JWT và gán vào cookie (đồng thời lấy token trả về cho client)
+        const token = generateToken(user._id, res);
         // Trả về dữ liệu
         res.status(200).json({
             _id: user._id,
             email: user.email,
             fullName: user.fullName,
             profilePicture: user.profilePicture || null,
+            token,
         });
     } catch (error) {
         console.error("Error during login:", error);
@@ -323,13 +324,14 @@ export const signinWithGoogle = async (req, res) => {
             });
         }
 
-        generateToken(user._id, res);
+        const token = generateToken(user._id, res);
 
         return res.status(200).json({
             _id: user._id,
             email: user.email,
             fullName: user.fullName,
             profilePicture: user.profilePicture || null,
+            token,
         });
     } catch (error) {
         console.error("Google login failed:", error.message);
