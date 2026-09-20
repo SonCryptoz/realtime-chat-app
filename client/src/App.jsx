@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/useAuthStore";
 import { useChatStore } from "./store/useChatStore";
 import { useThemeStore } from "./store/useThemeStore";
+import LoadingScreen from "./components/LoadingScreen";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
@@ -50,11 +51,8 @@ const App = () => {
 
     if ((isCheckingAuth && !authUser) || (authUser && !isChatReady)) {
         return (
-            <div
-                className="flex justify-center items-center h-screen"
-                data-theme={theme}
-            >
-                <Loader className="size-10 animate-spin" />
+            <div data-theme={theme} className="h-full">
+                <LoadingScreen />
             </div>
         );
     }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Eye,
     EyeOff,
@@ -25,6 +25,19 @@ const SignUpPage = () => {
     });
 
     const { signup, signinWithGoogle, isSigningUp, checkAuth } = useAuthStore();
+    const [isSlowSignup, setIsSlowSignup] = useState(false);
+
+    useEffect(() => {
+        let timer;
+        if (isSigningUp) {
+            timer = setTimeout(() => {
+                setIsSlowSignup(true);
+            }, 3000);
+        } else {
+            setIsSlowSignup(false);
+        }
+        return () => clearTimeout(timer);
+    }, [isSigningUp]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -198,6 +211,17 @@ const SignUpPage = () => {
                                 Sign up with Google
                             </button>
                         </div>
+
+                        {/* Cold-start wakeup notice */}
+                        {isSlowSignup && (
+                            <div className="alert bg-warning/10 text-warning-content border border-warning/20 text-xs p-3 rounded-lg mt-3">
+                                <span>
+                                    Máy chủ đang khởi động lại từ chế độ ngủ
+                                    (Render Free Tier), quá trình này có thể mất
+                                    30 - 50 giây. Vui lòng không tải lại trang...
+                                </span>
+                            </div>
+                        )}
 
                         <div className="text-center">
                             <p className="text-base-content/60">

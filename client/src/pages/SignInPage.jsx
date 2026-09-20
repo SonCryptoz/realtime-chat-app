@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
@@ -15,6 +15,19 @@ const SignInPage = () => {
         password: "",
     });
     const { signin, signinWithGoogle, isLoggingIn, checkAuth } = useAuthStore();
+    const [isSlowLogin, setIsSlowLogin] = useState(false);
+
+    useEffect(() => {
+        let timer;
+        if (isLoggingIn) {
+            timer = setTimeout(() => {
+                setIsSlowLogin(true);
+            }, 3000);
+        } else {
+            setIsSlowLogin(false);
+        }
+        return () => clearTimeout(timer);
+    }, [isLoggingIn]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -156,6 +169,17 @@ const SignInPage = () => {
                                 Sign in with Google
                             </button>
                         </div>
+
+                        {/* Cold-start wakeup notice */}
+                        {isSlowLogin && (
+                            <div className="alert bg-warning/10 text-warning-content border border-warning/20 text-xs p-3 rounded-lg mt-3">
+                                <span>
+                                    Máy chủ đang khởi động lại từ chế độ ngủ
+                                    (Render Free Tier), quá trình này có thể mất
+                                    30 - 50 giây. Vui lòng không tải lại trang...
+                                </span>
+                            </div>
+                        )}
 
                         <div className="text-center">
                             <p className="text-base-content/60">
